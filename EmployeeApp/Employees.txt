@@ -1,0 +1,10 @@
+Jason,Red,5000,IT
+Ashley,Green,7600,IT
+Matthew,Indigo,3587.5,Sales
+James,Indigo,4700.77,Marketing
+Luke,Indigo,6200,IT
+Jason,Blue,3200,Sales
+Wendy,Brown,4236.4,Marketing
+Pinky,Glitter,10000.5,Sales
+Brownie,Soi,1000.5,Marketing
+Brownie,Bunny,1000.5,Marketing
