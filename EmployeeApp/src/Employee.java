@@ -41,7 +41,7 @@ public class Employee {
 	}
 	@Override
 	public String toString() {
-		return String.format("%-20s %-20s %-20s %-20s", getFName(), getLName(), getCurrencyFormat(getSalary()), getDept());
+		return String.format("%-12s%-12s%-13s%-13s", getFName(), getLName(), getCurrencyFormat(getSalary()), getDept());
 	}
 	
 }

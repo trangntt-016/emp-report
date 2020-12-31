@@ -7,8 +7,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.swing.BoxLayout;
@@ -27,6 +29,7 @@ public class GetEmployeesFrame extends JFrame{
 	
 	private static JFrame _reportFrame = null;
 	private static JPanel _reportPanel = null;
+	private static JTextArea textArea  = null;
 	private static List<Employee> sortedEmployees;
 	public static void read() {
 		try {
@@ -46,7 +49,7 @@ public class GetEmployeesFrame extends JFrame{
 			fis.close();
 			
 			_reportFrame = new JFrame();	
-			_reportFrame.setSize(410,610);
+			_reportFrame.setSize(410,810);
 			_reportFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			
 			
@@ -58,10 +61,18 @@ public class GetEmployeesFrame extends JFrame{
 			ProcessingEmployees process = new ProcessingEmployees();
 			sortedEmployees = process.generateReport(fNameKW,lNameKW,deptKW,minKW,maxKW);
 			sortedEmployees.forEach(System.out::println);
+						
+			if(fNameKW.contains("")&&lNameKW.contains("")&&deptKW.contains("Choose one")&&minKW == 0&&maxKW==0) {
+				setHeader("General Salary Report By Departments");
+				generalReport();
+			}
+			else {
+				setHeader("Search Result");
+				reportByCriteria();
+			}
 			
-			setHeader("Report on Employees");
 			
-			displayAfterSort();
+
 			_reportFrame.add(_reportPanel);
 			_reportFrame.setVisible(true);
 		}catch(FileNotFoundException e) {
@@ -81,29 +92,100 @@ public class GetEmployeesFrame extends JFrame{
     	_reportPanel.add(headerLabel);   
     	
 	}
-	public static void displayAfterSort() {
-		JTextArea textArea = new JTextArea();
-		textArea.append(String.format("%-16s %-16s %-16s %-16s\n\n","First Name","Last Name", "Salary", "Department"));
-		for(Employee emp:sortedEmployees) {
-			textArea.append(emp.toString());
-			textArea.append("\n\n");
+	public static void generalReport() {
+		textArea = new JTextArea();
+		textArea.setFont(new Font("monospaced", Font.PLAIN, 12));
+		Map<String, Long>empCountByDept = sortedEmployees.stream()
+				.collect(Collectors.groupingBy(Employee::getDept,TreeMap::new,Collectors.counting()));
+		//empCountByDept.forEach((dept,count)->System.out.printf("%s has %d employees", dept,count));
+		
+		Map<String, Double>empSumByDept = sortedEmployees.stream()
+				.collect(Collectors.groupingBy(Employee::getDept, TreeMap::new, Collectors.summingDouble(Employee::getSalary)));
+		//empSumByDept.forEach((dept,sum)->System.out.printf("%s has %f sum", dept,sum));
+		
+		Map<String, Double>empAvgByDept = sortedEmployees.stream()
+				.collect(Collectors.groupingBy(Employee::getDept, TreeMap::new, Collectors.averagingDouble(Employee::getSalary)));
+		//empAvgByDept.forEach((dept,avg)->System.out.printf("%s has %f avg", dept,avg));
+		
+		Long count = 0L;
+		String curDept = "";
+		for(int i = 0; i < sortedEmployees.size(); i++) {
+			curDept = sortedEmployees.get(i).getDept();
+			Long noOfEmpInDept =empCountByDept.get(curDept); 
+			if(count == 0) {
+				textArea.append(curDept.toUpperCase()+"\n");
+				textArea.append(String.format("%-12s%-12s%-12s %-12s\n","First Name","Last Name", "Salary", "Department"));
+			}
+			textArea.append(sortedEmployees.get(i).toString()+"\n");
+			count++;
+			if(count==noOfEmpInDept) {
+				String sumByDept = getCurrencyFormat(empSumByDept.get(curDept));
+				String avgByDept = getCurrencyFormat(empAvgByDept.get(curDept));
+				textArea.append("Summary\n");
+				textArea.append("Number of Employees: "+ noOfEmpInDept+"\n");
+				textArea.append("Average salary of an employee: "+avgByDept+"\n");
+				textArea.append("Total budget for salary: "+sumByDept+"\n\n");
+				count = 0L;
+			}
 		}
+		textArea.append("COMPANY XXX\n");
+		textArea.append("Total Number of Employees: "+sortedEmployees.size()+".\n");
 		Double sum = sortedEmployees.stream().mapToDouble(Employee::getSalary).sum();
 		NumberFormat formatter = NumberFormat.getCurrencyInstance();
 		String moneyString = formatter.format(sum);
-		textArea.append("Sum of Employees's Salaries: "+moneyString+"\n\n");
+		textArea.append("Total Budget for Salaries: "+moneyString+".\n");
 		
 		Double average = sortedEmployees.stream()
 				.mapToDouble(Employee::getSalary)
 				.average()
 				.getAsDouble();
-		formatter = NumberFormat.getNumberInstance();
-		String avgString = formatter.format(average);
-		textArea.append("Average of Employees's Salaries: "+avgString);
-		textArea.setBounds(20,50,350,500);
+		textArea.append("Average Salary of an Employee: "+getCurrencyFormat(average)+".\n");
+		textArea.setBounds(20,50,350,700);
 
 	_reportPanel.add(textArea);
 	}
 	
-
+	static public void reportByCriteria() {
+		textArea = new JTextArea();
+		textArea.setFont(new Font("monospaced", Font.PLAIN, 12));
+		Map<String, Long>empCountByDept = sortedEmployees.stream()
+				.collect(Collectors.groupingBy(Employee::getDept,TreeMap::new,Collectors.counting()));
+		//empCountByDept.forEach((dept,count)->System.out.printf("%s has %d employees", dept,count));
+		
+		Map<String, Double>empSumByDept = sortedEmployees.stream()
+				.collect(Collectors.groupingBy(Employee::getDept, TreeMap::new, Collectors.summingDouble(Employee::getSalary)));
+		//empSumByDept.forEach((dept,sum)->System.out.printf("%s has %f sum", dept,sum));
+		
+		Map<String, Double>empAvgByDept = sortedEmployees.stream()
+				.collect(Collectors.groupingBy(Employee::getDept, TreeMap::new, Collectors.averagingDouble(Employee::getSalary)));
+		//empAvgByDept.forEach((dept,avg)->System.out.printf("%s has %f avg", dept,avg));
+		
+		Long count = 0L;
+		String curDept = "";
+		for(int i = 0; i < sortedEmployees.size(); i++) {
+			curDept = sortedEmployees.get(i).getDept();
+			Long noOfEmpInDept =empCountByDept.get(curDept); 
+			if(count == 0) {
+				textArea.append(curDept.toUpperCase()+"\n");
+				textArea.append(String.format("%-12s%-12s%-12s %-12s\n","First Name","Last Name", "Salary", "Department"));
+			}
+			textArea.append(sortedEmployees.get(i).toString()+"\n");
+			count++;
+			if(count==noOfEmpInDept) {
+				String sumByDept = getCurrencyFormat(empSumByDept.get(curDept));
+				String avgByDept = getCurrencyFormat(empAvgByDept.get(curDept));
+				textArea.append("Number of Matches: "+ noOfEmpInDept+"\n\n");
+				count = 0L;
+			}
+		}
+		textArea.setBounds(20,50,350,700);
+		_reportPanel.add(textArea);
+	}
+	
+	
+	static public String getCurrencyFormat(double salary) {
+		NumberFormat formatter = NumberFormat.getCurrencyInstance();
+		String moneyString = formatter.format(salary);
+		return moneyString;
+	}
 }
