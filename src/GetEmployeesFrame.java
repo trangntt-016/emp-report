@@ -70,9 +70,6 @@ public class GetEmployeesFrame extends JFrame{
 				setHeader("Search Result");
 				reportByCriteria();
 			}
-			
-			
-
 			_reportFrame.add(_reportPanel);
 			_reportFrame.setVisible(true);
 		}catch(FileNotFoundException e) {
@@ -95,16 +92,13 @@ public class GetEmployeesFrame extends JFrame{
 	public static void generalReport() {
 		textArea = new JTextArea();
 		textArea.setFont(new Font("monospaced", Font.PLAIN, 12));
-		Map<String, Long>empCountByDept = sortedEmployees.stream()
-				.collect(Collectors.groupingBy(Employee::getDept,TreeMap::new,Collectors.counting()));
+		Map<String, Long>empCountByDept = getEmpCountByDept();
 		//empCountByDept.forEach((dept,count)->System.out.printf("%s has %d employees", dept,count));
 		
-		Map<String, Double>empSumByDept = sortedEmployees.stream()
-				.collect(Collectors.groupingBy(Employee::getDept, TreeMap::new, Collectors.summingDouble(Employee::getSalary)));
+		Map<String, Double>empSumByDept = GetEmpSumByDept();
 		//empSumByDept.forEach((dept,sum)->System.out.printf("%s has %f sum", dept,sum));
 		
-		Map<String, Double>empAvgByDept = sortedEmployees.stream()
-				.collect(Collectors.groupingBy(Employee::getDept, TreeMap::new, Collectors.averagingDouble(Employee::getSalary)));
+		Map<String, Double>empAvgByDept = GetEmpAvgByDept();
 		//empAvgByDept.forEach((dept,avg)->System.out.printf("%s has %f avg", dept,avg));
 		
 		Long count = 0L;
@@ -142,23 +136,17 @@ public class GetEmployeesFrame extends JFrame{
 		textArea.append("Average Salary of an Employee: "+getCurrencyFormat(average)+".\n");
 		textArea.setBounds(20,50,350,700);
 
-	_reportPanel.add(textArea);
+		_reportPanel.add(textArea);
 	}
 	
 	static public void reportByCriteria() {
 		textArea = new JTextArea();
 		textArea.setFont(new Font("monospaced", Font.PLAIN, 12));
-		Map<String, Long>empCountByDept = sortedEmployees.stream()
-				.collect(Collectors.groupingBy(Employee::getDept,TreeMap::new,Collectors.counting()));
-		//empCountByDept.forEach((dept,count)->System.out.printf("%s has %d employees", dept,count));
+		Map<String, Long>empCountByDept = getEmpCountByDept();
 		
-		Map<String, Double>empSumByDept = sortedEmployees.stream()
-				.collect(Collectors.groupingBy(Employee::getDept, TreeMap::new, Collectors.summingDouble(Employee::getSalary)));
-		//empSumByDept.forEach((dept,sum)->System.out.printf("%s has %f sum", dept,sum));
+		Map<String, Double>empSumByDept = GetEmpSumByDept();
 		
-		Map<String, Double>empAvgByDept = sortedEmployees.stream()
-				.collect(Collectors.groupingBy(Employee::getDept, TreeMap::new, Collectors.averagingDouble(Employee::getSalary)));
-		//empAvgByDept.forEach((dept,avg)->System.out.printf("%s has %f avg", dept,avg));
+		Map<String, Double>empAvgByDept = GetEmpAvgByDept();
 		
 		Long count = 0L;
 		String curDept = "";
@@ -182,6 +170,23 @@ public class GetEmployeesFrame extends JFrame{
 		_reportPanel.add(textArea);
 	}
 	
+	static public Map<String, Long>getEmpCountByDept(){
+		Map<String, Long>result = sortedEmployees.stream()
+				.collect(Collectors.groupingBy(Employee::getDept,TreeMap::new,Collectors.counting()));
+		return result;
+	}
+	
+	static public Map<String, Double>GetEmpSumByDept(){
+		Map<String,Double>result = sortedEmployees.stream()
+				.collect(Collectors.groupingBy(Employee::getDept, TreeMap::new, Collectors.summingDouble(Employee::getSalary)));
+		return result;
+	}
+	
+	static public Map<String, Double>GetEmpAvgByDept(){
+		Map<String,Double>result = sortedEmployees.stream()
+				.collect(Collectors.groupingBy(Employee::getDept, TreeMap::new, Collectors.averagingDouble(Employee::getSalary)));
+		return result;
+	}
 	
 	static public String getCurrencyFormat(double salary) {
 		NumberFormat formatter = NumberFormat.getCurrencyInstance();
