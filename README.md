@@ -2,7 +2,7 @@
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/trangntt-016/emp-report?color=var%28--color-scale-green-6%29&label=Code%20Size&style=flat-square)&nbsp;
 ![GitHub top language](https://img.shields.io/github/languages/top/trangntt-016/emp-report?label=Java&logo=Java&style=flat-square)
 
-A simple project to generate reports based upon user's input(s).
+A small project to generate salary reports based upon user's input(s).
 
 You can run and edit the code or contribute to them using Gitpod.io, a free online development environment, with a single click.
 
